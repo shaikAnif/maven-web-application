@@ -1,0 +1,46 @@
+pipeline{
+agent any
+//agent{
+//label: 'here mention node name'
+tools{
+maven "maven3.9.9"
+}
+stages{
+ stage('git checkout'){
+  steps{
+
+  }
+ }
+}
+ stage('Build'){
+  steps{
+sh "mvn clean package"
+ }
+}
+stage('Execute sonarqube'){
+  steps{
+sh "mvn clean package sonar:sonar"
+ }
+}
+stage('Nexus to create artifacts repository'){
+  steps{
+sh "mvn clean deploy"
+ }
+}
+stage('Tomcat application'){
+  steps{
+sshagent({''}){
+sh "scp -o stricthostKey=no target/maven-web-application.war ubuntu@IP:/opt/tomcat/webapps/"
+ }
+}
+}
+}
+post{
+sucess{
+
+}
+failure{
+
+}
+}
+}
